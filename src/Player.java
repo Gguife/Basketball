@@ -19,13 +19,14 @@ public class Player {
     }
 
 
-    public static List<Player> populatePlayer(String[][] playerData) {
+    public static List<Player> populatePlayer(String[][] playerData, int teamCounter) {
         List<Player> players = new ArrayList<>();
         for(String[] data : playerData) {
-            String name = data[0];
-            int number = Integer.parseInt(data[1]);
-            Player player = new Player(name, number);
-            players.add(player);
+            int teamId = Integer.parseInt(data[0]);
+            if(teamCounter == teamId) {
+                Player player = new Player(data[1], Integer.parseInt(data[2]));
+                players.add(player);
+            }
         }
 
         return players;
