@@ -4,26 +4,85 @@ import java.util.Map;
 
 public class Main {
 
-    public static List<Game> games = new ArrayList<>();
 
     public static void main(String[] args) {
-        // Call the createGame method to start the process
-        List<Game> gameList = createGame();
+        // Call the createTournament method to start the process
+        Tournament tournament = createTournament();
 
-        // Print game results
-        printGameResults();
+        // Print tournament details here
+        calculateTournamentStats(tournament);
     }
 
-    // Method to create games and integrate player stats
-    public static List<Game> createGame() {
+    // Create a tournament and populate its components
+    public static Tournament createTournament() {
 
-        // Calls createTeams to create and populate teams
         List<Team> teams = createTeams();
-
-        // Calls createPlayers to populate players for each team
         List<Player> players = createPlayers(teams);
 
-        // Game-specific data for stats integration
+        // Create tournament
+        Tournament tournament = new Tournament("Philadelphia 76ers at Los Angeles Lakers", "2001");
+
+        // Add teams to the tournament
+        for (Team team : teams) {
+            tournament.addTeam(team);
+        }
+
+        // Create games and add to tournament
+        List<Game> games = createGames(teams, players);
+        for (Game game : games) {
+            tournament.addGame(game);
+        }
+
+        return tournament;
+    }
+
+    // Create and populate teams
+    public static List<Team> createTeams() {
+
+        String[][] teamData = {
+                {"Philadelphia 76ers", "Conference 1"},
+                {"Los Angeles Lakers", "Conference 2"}
+        };
+
+        return Team.populateTeams(teamData);
+    }
+
+    // Create players and assign to teams
+    public static List<Player> createPlayers(List<Team> teams) {
+
+        List<Player> players = new ArrayList<>();
+
+        String[][] playerData = {
+                {"0", "Allen Iverson", "1"},
+                {"0", "Aaron McKie", "2"},
+                {"0", "Dikembe Mutombo", "3"},
+                {"0", "Tyrone Hill", "4"},
+                {"0", "Jumaine Jones", "5"},
+                {"1", "Kobe Bryant", "6"},
+                {"1", "Shaquille O'Neal", "7"},
+                {"1", "Rick Fox", "8"},
+                {"1", "Horace Grant", "9"},
+                {"1", "Derek Fisher", "10"}
+        };
+
+        // Players population into teams
+        int teamCounter = 0;
+        for (Team team : teams) {
+            List<Player> teamPlayers = Player.populatePlayer(playerData, teamCounter);
+            for (Player player : teamPlayers) {
+                team.addPlayer(player);
+                players.add(player);
+            }
+            teamCounter++;
+        }
+
+        return players;
+    }
+
+    // Create games and add player stats
+    public static List<Game> createGames(List<Team> teams, List<Player> players) {
+        List<Game> games = new ArrayList<>();
+
         int[][][] playerStatsOfAllGames = {
                 {
                         {18, 3, 9, 2, 3, 6},
@@ -63,8 +122,8 @@ public class Main {
                 },
                 {
                         {12, 1, 10, 1, 3, 4},
-                        {9, 0, 1, 3, 6, 0},
-                        {1, 0, 3, 0, 3, 2},
+                        {9,	0, 1, 3, 6,	0},
+                        {1,	0, 3, 0, 3, 2},
                         {3, 0, 1, 2, 5, 1},
                         {0, 0, 0, 1, 2, 1},
                         {6, 0, 7, 2, 8, 9},
@@ -111,77 +170,84 @@ public class Main {
             }
         }
 
-        return games;  // Return the list of games
+        return games;
     }
 
-    // Method to create teams and call createPlayers
-    public static List<Team> createTeams() {
-
-        String[][] teamData = {
-                {"Philadelphia 76ers", "Conference 1"},
-                {"Los Angeles Lakers", "Conference 2"}
-        };
-
-        // Populate teams
-        List<Team> teams = Team.populateTeams(teamData);
-
-        // Create players for each team
-        createPlayers(teams);  // Call createPlayers to associate players with teams
-
-        return teams;
-    }
-
-    // Method to create players and associate them with teams
-    public static List<Player> createPlayers(List<Team> teams) {
-
-        List<Player> players = new ArrayList<>();
-
-        String[][] playerData = {
-                {"0", "Allen Iverson", "1"},
-                {"0", "Aaron McKie", "2"},
-                {"0", "Dikembe Mutombo", "3"},
-                {"0", "Tyrone Hill", "4"},
-                {"0", "Jumaine Jones", "5"},
-                {"1", "Kobe Bryant", "6"},
-                {"1", "Shaquille O'Neal", "7"},
-                {"1", "Rick Fox", "8"},
-                {"1", "Horace Grant", "9"},
-                {"1", "Derek Fisher", "10"}
-        };
-
-        // Players population into teams
-        int teamCounter = 0;
-        for (Team team : teams) {
-            List<Player> teamPlayers = Player.populatePlayer(playerData, teamCounter);
-            for (Player player : teamPlayers) {
-                team.addPlayer(player);
-                players.add(player);
-            }
-            teamCounter++;
+    // Helper method to add player stats to the game
+    public static void addPlayerStatsToGame(Game game, List<PlayerGameStats> playerStatsList) {
+        for (PlayerGameStats stats : playerStatsList) {
+            game.addPlayerGameStats(stats);  // Add each player's stats to the game
         }
-
-        return players;
     }
 
-    // Mehthod tpo display game results (summary + highest scorer)
-    public static void printGameResults(){
-        int gameIndex = 1; // Initialize game index
+    // Method to calculate and print tournament statistics
+    public static void calculateTournamentStats(Tournament tournament) {
+
+        // Print tournament details
+        System.out.println("\nTournament: " + tournament.getName());
+        System.out.println("-------------------------------------------------------\n");
+
+        List<Game> games = tournament.getGames();
+
+        // Calculate and print game-wise stats
+        System.out.println("---Game-wise Stats---");
 
         for (Game game : games) {
-            System.out.println("Game # " + gameIndex + ":");
+            System.out.println("Game # " + game.getGameNumber() + ":");
             System.out.println(game.gameSummary());
-            System.out.println("-------------------------------------------------------");
+            System.out.println("-------------------------------------------------------\n");
 
-            // Print highest scorers from each team
-            Map<Team, Player> teamHighestScorer = game.highestScorer();
-            for (Map.Entry<Team, Player> entry : teamHighestScorer.entrySet()) {
-                Team team = entry.getKey();
-                Player scorer = entry.getValue();
-                System.out.println("Team: " + team.getName() + ", Highest Scorer: " + scorer.getName());
-            }
-            System.out.println("-------------------------------------------------------");
-            gameIndex++;
-
+            //Print highest scorers for each team
+            printTeamHighestScorers(game);
+            System.out.println("-------------------------------------------------------\n");
         }
+
+        // Calculate and print the tournmant winner and tournament-wise stats
+        printTournamentWinnerAndHighestScorer(tournament, games);
+
+        // Display MVP stats
+        printMVPStats(tournament);
+        System.out.println("-------------------------------------------------------\n");
+    }
+
+    public static void printTeamHighestScorers(Game game) {
+        // Get the highest scorer for each team
+        Map<Team, Player> teamHighestScorer = game.highestScorer();
+
+        // Print the highest scorer for each team
+        for (Map.Entry<Team, Player> entry : teamHighestScorer.entrySet()) {
+            Team team = entry.getKey();
+            Player scorer = entry.getValue();
+            System.out.println("Team: " + team.getName() + ", Highest Scorer: " + scorer.getName());
+        }
+    }
+
+    // Method to print MVP stats
+    public static void printMVPStats(Tournament tournament) {
+        // Get the MVP stats
+        Map<String, String> mvpStats = tournament.mvpStats(new ArrayList<>(tournament.getGames()));
+
+        // Print the MVP stats
+        System.out.println("MVP Stats:");
+        for (Map.Entry<String, String> entry : mvpStats.entrySet()) {
+            System.out.println("-- " + entry.getKey() + ": " + entry.getValue());
+        }
+    }
+
+    // Function to print tournament winner and highest scorer
+    public static void printTournamentWinnerAndHighestScorer(Tournament tournament, List<Game> games) {
+        // Get the tournament winner
+        Team tournamentWinner = tournament.getTournamentWinner();
+
+        if (tournamentWinner != null) {
+            System.out.println("Tournament Winner: " + tournamentWinner.getName());
+        } else {
+            System.out.println("The tournament ended in a draw.");
+        }
+
+        // Get the highest scorer in the tournament
+        Player highestScorer = tournament.highestScore(games);
+
+        System.out.println("Highest Scorer of the Tournament: " + highestScorer.getName());
     }
 }
