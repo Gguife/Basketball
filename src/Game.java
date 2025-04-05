@@ -35,6 +35,10 @@ class Game {
       return awayTeam;
    }
 
+   public int getGameNumber() {
+      return gameNumber;
+   }
+
    public void addPlayerGameStats(PlayerGameStats stats) {
       playerGameStats.add(stats);
    }
