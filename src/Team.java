@@ -2,16 +2,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Team {
-   private String name;
-   private String conference;
+   public String name;
+   public String conference;
    private List<Player> players;
 
-   public Team(String name, String conference){
+   public Team(String name, String conference) {
       this.name = name;
       this.conference = conference;
       this.players = new ArrayList<>();
    }
 
+   // Getters and setters
    public String getName() {
       return name;
    }
@@ -28,26 +29,21 @@ public class Team {
       players.add(player);
    }
 
+
+   // Method to check if a given player is part of the team
+   public boolean hasPlayer(Player player) {
+      return players.contains(player);  // Returns true if the player is in the team's list
+   }
+
+   // Function to populate team
    public static List<Team> populateTeams(String[][] teamData) {
       List<Team> teams = new ArrayList<>();
-      for(String[] data: teamData) {
+      for (String[] data : teamData) {
          String name = data[0];
          String conference = data[1];
          Team team = new Team(name, conference);
          teams.add(team);
       }
-
       return teams;
-   }
-
-   public void printTeam() {
-      System.out.println("Team name: " + getName() + ", Conference: " + getConference());
-   }
-
-   public static void printTeamData(Team team) {
-      System.out.println(" " +  team.getName() + "\n--Players:");
-      for (Player player : team.getPlayers()) {
-         System.out.println(" --- " + player.getName());
-      }
    }
 }
